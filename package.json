@@ -1,0 +1,33 @@
+{
+  "name": "@devest/devest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test --debug",
+    "build": "mkdir -p npm; cp -r ./contracts/src/* ./npm; cp package.json ./npm/package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devest-finance/devest.git"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.3",
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "web3": "^1.9.0"
+  },
+  "devDependencies": {
+    "truffle-contract-size": "^2.0.1",
+    "ganache": "^7.8.0",
+    "@truffle/hdwallet-provider": "^2.1.10"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devest-finance/devest/issues"
+  },
+  "homepage": "https://github.com/devest-finance/devest#readme"
+}
