@@ -57,7 +57,6 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
     // Stakes
     address[] internal shareholders;                                // all current shareholders
     mapping (address => uint256) internal shares;                   // shares of shareholder
-    mapping(address => uint256) internal shareholdersIndex; // index of the shareholders address
 
     // metadata
     string internal _name;           // name of the tangible
