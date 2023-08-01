@@ -236,7 +236,7 @@ contract('Functions accessability', (accounts) => {
 
         // check there is one active order
         const activeOrdersAfterCancel = await orderBook.getOrders.call();
-        assert.equal(activeOrdersAfterCancel.length, 2, "Active orders should be 1");
+        assert.equal(activeOrdersAfterCancel.length, 2, "Active orders should be 2");
 
         // account 6 cancels order
         await orderBook.cancel({from: accounts[6]});
@@ -248,6 +248,95 @@ contract('Functions accessability', (accounts) => {
         // check account 6 balance
         const balance6 = await vestingToken.balanceOf.call(accounts[6]);
         assert.equal(balance6.toNumber(), balanceBefore.toNumber() - totalPayment/2, "Account 6 balance should be the same");
+    });
+
+    // check payment for buy order
+    it("Check payment for buy order", async () => {
+
+        // account 6 makes buy order   
+        // shares to buy
+        const sharesBuy = 10 * Math.pow(10, decimals);
+        const pricePerShareBuy = 10;
+
+        // orderBook takes 10% tax +  pricePerShare * shares
+        const totalPaymentBuy = sharesBuy * pricePerShareBuy + (sharesBuy * pricePerShareBuy * 0.1);
+
+        // allowance for account 6
+        await vestingToken.approve(orderBook.address, totalPaymentBuy, {from: accounts[6]});
+
+        await orderBook.buy(10, sharesBuy, {from: accounts[6]});
+
+        // check there is active order
+        const activeOrders = await orderBook.getOrders.call();
+        assert.equal(activeOrders.length, 2, "Active orders should be 2");
+
+        // check account 2 balance before buy
+        const balanceBefore = await vestingToken.balanceOf.call(accounts[2]);
+
+        // check owner balance before buy
+        const balance0Before = await vestingToken.balanceOf.call(accounts[0]);
+
+        // shares to buy
+        const shares = 5 * Math.pow(10, decimals);
+        const pricePerShare = 10;
+
+        // orderBook takes 10% tax +  pricePerShare * shares
+        const totalPayment = shares * pricePerShare + (shares * pricePerShare * 0.1);
+
+        // allowance for account 2
+        await vestingToken.approve(orderBook.address, totalPayment, {from: accounts[2]});
+
+        await orderBook.accept(accounts[6], shares, {from: accounts[2], value: 10000000});
+
+        // check that account 2 got payment
+        const balanceAfter = await vestingToken.balanceOf.call(accounts[2]);
+        assert.equal(balanceAfter.toNumber(), balanceBefore.toNumber() + shares * pricePerShare, "Balance should be 1000 less");
+
+        // check that owner got 10% tax
+        const balance0After = await vestingToken.balanceOf.call(accounts[0]);
+        assert.equal(balance0After.toNumber(), balance0Before.toNumber() + (shares * pricePerShare * 0.1), "Balance should be 1000 less");
+
+        // check orders
+        const activeOrdersAfter = await orderBook.getOrders.call();
+        assert.equal(activeOrdersAfter.length, 2, "Active orders should be 2");
+
+    });
+
+    // Check payment for sell order
+    it("Check payment for sell order", async () => {
+            // account 3 makes sell order
+            const sharesSell = 10 * Math.pow(10, decimals);
+            const priceSell = 50;
+            await orderBook.sell(priceSell, sharesSell, {from: accounts[3]});
+    
+            // check there is active order
+            const activeOrders = await orderBook.getOrders.call();
+            assert.equal(activeOrders.length, 3, "Active orders should be 3");
+    
+            // check account 3 balance before buy
+            const balanceBefore = await vestingToken.balanceOf.call(accounts[3]);
+    
+            // check owner balance before buy
+            const balance0Before = await vestingToken.balanceOf.call(accounts[0]);
+    
+            // shares to buy
+            const shares = 5 * Math.pow(10, decimals);
+    
+            // orderBook takes 10% tax +  priceSell * shares
+            const totalPayment = shares * priceSell + (shares * priceSell * 0.1);
+    
+            // allowance for account 5
+            await vestingToken.approve(orderBook.address, totalPayment, {from: accounts[5]});
+
+            await orderBook.accept(accounts[3], shares, {from: accounts[5], value: 10000000});
+    
+            // check that account 3 got payment
+            const balanceAfter = await vestingToken.balanceOf.call(accounts[3]);
+            assert.equal(balanceAfter.toNumber(), balanceBefore.toNumber() + shares * priceSell, "Balance should be 1000 less");
+    
+            // check that owner got 10% tax
+            const balance0After = await vestingToken.balanceOf.call(accounts[0]);
+            assert.equal(balance0After.toNumber(), balance0Before.toNumber() + (shares * priceSell * 0.1), "Balance should be 1000 less");
     });
 
 });
