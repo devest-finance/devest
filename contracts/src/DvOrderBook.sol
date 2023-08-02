@@ -165,7 +165,7 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
       */
     function initializePresale(uint tax, uint8 decimal, uint256 price, uint256 start, uint256 end) public onlyOwner atState(States.Created) nonReentrant virtual {
         require(tax >= 0 && tax <= 1000, 'Invalid tax value');
-        require(decimal >= 0 && decimal <= 10, 'Max 16 decimals');
+        require(decimal >= 0 && decimal <= 10, 'Max 10 decimals');
 
         // set attributes
         _decimals = decimal += 2;
@@ -335,6 +335,18 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
     function terminate() public virtual onlyOwner notState(States.Terminated) {
         state = States.Terminated;
     }
+
+    // Withdraw funds from contract if presell failed
+    function withdraw() public virtual payable nonReentrant atState(States.Terminated) {
+        require(shares[_msgSender()] > 0, "No shares available");
+        require(presaleShares < _totalSupply, "Presale already finished");
+
+        uint256 amount = (_token.balanceOf(address(this)) * shares[_msgSender()]) / presaleShares;
+        _token.transfer(_msgSender(), amount);
+        
+        shares[_msgSender()] = 0;
+    }
+
 
     // ----------------------------------------------------------------------------------------------------------
     // -------------------------------------------- PUBLIC GETTERS ----------------------------------------------

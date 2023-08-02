@@ -19,6 +19,17 @@ contract('Functions accessability', (accounts) => {
 
     // check if functions are accessible while in created state (initialization should be the only one available)
     it('Check functions accessibility before initialization', async () => {
+        // try calling purchase
+        try {
+            // allowence for account 2
+            await vestingToken.approve(orderBook.address, Math.floor(100 * 100 * 1.1), { from: accounts[2] });
+            await orderBook.purchase(100, { from: accounts[2] });
+            assert(false, "Purchase should not be callable");
+        }
+        catch (e) {
+            assert.equal(e.reason, "Not available in current state", "Invalid error message");
+        }
+
         // try calling buy
         try {
             await orderBook.buy(100, 100, { from: accounts[2] });
@@ -58,6 +69,17 @@ contract('Functions accessability', (accounts) => {
         try {
             await orderBook.initialize(100, 0, { from: accounts[0] });
             assert(false, "Initialize should not be callable");
+        }
+        catch (e) {
+            assert.equal(e.reason, "Not available in current state", "Invalid error message");
+        }
+
+        // try calling purchase
+        try {
+            // allowence for account 2
+            await vestingToken.approve(orderBook.address, Math.floor(100 * 100 * 1.1), { from: accounts[2] });
+            await orderBook.purchase(100, { from: accounts[2] });
+            assert(false, "Purchase should not be callable");
         }
         catch (e) {
             assert.equal(e.reason, "Not available in current state", "Invalid error message");
@@ -131,6 +153,16 @@ contract('Functions accessability', (accounts) => {
         try {
             await orderBook.buy(100, 100, { from: accounts[3] });
             assert(false, "Buy should not be callable");
+        }
+        catch (e) {
+            assert.equal(e.reason, "Not available in current state", "Invalid error message");
+        }
+        
+        // try calling purchase
+        try {
+            // allowence for account 2
+            await orderBook.purchase(100, { from: accounts[2] });
+            assert(false, "Purchase should not be callable");
         }
         catch (e) {
             assert.equal(e.reason, "Not available in current state", "Invalid error message");
