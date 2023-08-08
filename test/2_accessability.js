@@ -96,7 +96,7 @@ contract('Functions accessability', (accounts) => {
         // cancel should be callable after initialization
         await orderBook.cancel({ from: accounts[0] });
 
-        // transfet should be callable after initialization
+        // transfer should be callable after initialization
         await orderBook.transfer(accounts[7], 10, { from: accounts[0], value: 10000000 });
 
         // sell should be callable after initialization

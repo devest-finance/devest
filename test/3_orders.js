@@ -23,6 +23,12 @@ contract('Functions accessability', (accounts) => {
         await orderBook.initialize(100, decimals, { from: accounts[0] });
     });
 
+    // check last trading price
+    it("Check last trading price", async () => {
+        const lastPrice = await orderBook.lastPrice.call();
+        assert.equal(lastPrice.toNumber(), 0, "Last price should be 0");
+    });
+
     // make sell orders
     it("Owner make sell orders", async () => {
         const shares = 50 * Math.pow(10, decimals);
@@ -85,6 +91,12 @@ contract('Functions accessability', (accounts) => {
         assert.equal(shares2.toNumber(), account2PurchaseShares, "Account 2 should have 10% shares");
         assert.equal(shares3.toNumber(), account3PurchaseShares, "Account 3 should have 20% shares");
         assert.equal(shares4.toNumber(), account4PurchaseShares, "Account 4 should have 20% shares");
+    });
+
+    // check last trading price
+    it("Check last trading price", async () => {
+        const lastPrice = await orderBook.lastPrice.call();
+        assert.equal(lastPrice.toNumber(), 5000, "Last price should be 5000");
     });
 
     // check there are no active orders and owner can make sell order
@@ -248,6 +260,13 @@ contract('Functions accessability', (accounts) => {
         // check account 6 balance
         const balance6 = await vestingToken.balanceOf.call(accounts[6]);
         assert.equal(balance6.toNumber(), balanceBefore.toNumber() - totalPayment/2, "Account 6 balance should be the same");
+    });
+
+
+    // check last trading price
+    it("Check last trading price", async () => {
+        const lastPrice = await orderBook.lastPrice.call();
+        assert.equal(lastPrice.toNumber(), 10, "Last price should be 10");
     });
 
     // check payment for buy order

@@ -51,6 +51,8 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
     mapping (address => Order) public orders;  // all orders
     address[] public orderAddresses;       // all order addresses
 
+    uint256 public lastPrice = 0;      // last trading price
+
     // Total amount in escrow
     uint256 public escrow;
 
@@ -278,6 +280,9 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
         } else {
             _acceptAskOrder(orderOwner, cost, totalCost, amount, order.price);
         }
+
+        // set the last price
+        lastPrice = order.price;
 
         // pay royalty
         _token.transfer(owner(), tax);

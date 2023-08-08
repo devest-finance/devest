@@ -55,9 +55,10 @@ contract DeVest is Context {
 
         address recipient;
         uint256 fee;
+        uint256 issueFee;
 
         // fetch fee and receiver
-        (fee,recipient)= _factory.getFee();
+        (fee,recipient,issueFee)= _factory.getFee();
 
         // check for fee and transfer to owner
         require(msg.value >= fee, "Please provide enough fee");

@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/utils/Context.sol";
  */
 abstract contract DvFactory is Context {
 
+    event deployed(address indexed issuer_address, address indexed contract_address);
+
     // Disable this factory in case of problems or deprecation
     bool private active = true;
 
@@ -52,8 +54,8 @@ abstract contract DvFactory is Context {
     }
 
     /// @notice Get current royalty fee and address
-    function getFee() external view returns (uint256, address) {
-        return (_fee, _feeRecipient);
+    function getFee() external view returns (uint256, address, uint256) {
+        return (_fee, _feeRecipient, _issueFee);
     }
 
     /// @notice set the fee recipient
