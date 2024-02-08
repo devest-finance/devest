@@ -5,10 +5,11 @@ import "./DeVest.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./VestingToken.sol";
 
 // DeVest Investment Model One
 // Bid & Offer
-contract DvOrderBook is ReentrancyGuard, Context, DeVest {
+contract DvOrderBook is ReentrancyGuard, Context, DeVest, VestingToken {
 
     // ---------------------------- EVENTS ------------------------------------
 
@@ -66,12 +67,11 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
     uint8 internal _decimals;        // decimals of the tangible
     uint256 internal _totalSupply;   // total supply of shares (10^decimals)
 
-    // - Vesting / Trading token reference
-    IERC20 internal _token;
-
     // Set owner and DI OriToken
-    constructor(address _tokenAddress, string memory __name, string memory __symbol, address _factory, address _owner) DeVest(_owner, _factory) {
-        _token =  IERC20(_tokenAddress);
+    constructor(address _tokenAddress, string memory __name, string memory __symbol, address _factory, address _owner)
+        DeVest(_owner, _factory)
+        VestingToken(_tokenAddress) {
+
         _symbol = string(abi.encodePacked("% ", __symbol));
         _name = __name;
     }
@@ -94,12 +94,6 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
         _;
     }
 
-    /**
-     *  Internal token allowance
-     */
-    function __allowance(address account, uint256 amount) internal view {
-        require(_token.allowance(account, address(this)) >= amount, 'Insufficient allowance provided');
-    }
 
     // ----------------------------------------------------------------------------------------------------------
     // ------------------------------------------------ INTERNAL ------------------------------------------------
@@ -187,7 +181,7 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
 
         // check if enough escrow allowed and pick the cash
         __allowance(_msgSender(), amount * presalePrice);
-        _token.transferFrom(_msgSender(), address(this), amount * presalePrice);
+        __transferFrom(_msgSender(), address(this), amount * presalePrice);
 
         // check if sender is already in shareholders
         if (shares[_msgSender()] == 0){
@@ -200,7 +194,7 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
         presaleShares += amount;
         if (presaleShares >= _totalSupply) {
             state = States.Trading;
-            _token.transfer(owner(), _token.balanceOf(address(this)));
+            __transfer(owner(), __balanceOf(address(this)));
         }
     }
 
@@ -237,7 +231,7 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
         orderAddresses.push(_msgSender());
 
         // pull escrow
-        _token.transferFrom(_msgSender(), address(this), _escrow);
+        __transferFrom(_msgSender(), address(this), _escrow);
         escrow += _escrow;
     }
 
@@ -285,7 +279,7 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
         lastPrice = order.price;
 
         // pay royalty
-        _token.transfer(owner(), tax);
+        __transfer(owner(), tax);
     }
 
     /**
@@ -296,7 +290,7 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
     function _acceptBidOrder(address orderOwner, uint256 cost, uint256 totalCost, uint256 amount, uint256 price) internal {
         require(shares[_msgSender()] >= amount,"Insufficient shares");
 
-        _token.transfer(_msgSender(), cost);
+        __transfer(_msgSender(), cost);
         swapShares(orderOwner, _msgSender(), amount);
         emit Trade(orderOwner, _msgSender(), amount, price);
 
@@ -311,8 +305,8 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
     function _acceptAskOrder(address orderOwner, uint256 cost, uint256 totalCost, uint256 amount, uint256 price) internal {
         require(shares[orderOwner] >= amount, "Insufficient shares");
 
-        _token.transferFrom(_msgSender(), address(this), totalCost);
-        _token.transfer(orderOwner, cost);
+        __transferFrom(_msgSender(), address(this), totalCost);
+        __transfer(orderOwner, cost);
         swapShares(_msgSender(), orderOwner, amount);
         emit Trade(_msgSender(), orderOwner, amount, price);
 
@@ -328,7 +322,7 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
         Order memory _order = orders[_msgSender()];
         // return escrow leftover
         if (_order.bid) {
-            _token.transfer(_msgSender(), _order.escrow);
+            __transfer(_msgSender(), _order.escrow);
             escrow -= _order.escrow;
         }
 
@@ -346,8 +340,8 @@ contract DvOrderBook is ReentrancyGuard, Context, DeVest {
         require(shares[_msgSender()] > 0, "No shares available");
         require(presaleShares < _totalSupply, "Presale already finished");
 
-        uint256 amount = (_token.balanceOf(address(this)) * shares[_msgSender()]) / presaleShares;
-        _token.transfer(_msgSender(), amount);
+        uint256 amount = (__balanceOf(address(this)) * shares[_msgSender()]) / presaleShares;
+        __transfer(_msgSender(), amount);
         
         shares[_msgSender()] = 0;
     }
