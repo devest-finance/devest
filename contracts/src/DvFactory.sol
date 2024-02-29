@@ -73,4 +73,8 @@ abstract contract DvFactory is Context {
         active = false;
     }
 
+    function getOwner() public view returns (address) {
+        return _owner;
+    }
+
 }
