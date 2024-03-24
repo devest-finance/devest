@@ -54,8 +54,8 @@ abstract contract DvFactory is Context {
     }
 
     /// @notice Get current royalty fee and address
-    function getFee() external view returns (uint256, address, uint256) {
-        return (_fee, _feeRecipient, _issueFee);
+    function getFee() external view returns (uint256, address) {
+        return (_fee, _feeRecipient);
     }
 
     /// @notice set the fee recipient
