@@ -2,8 +2,11 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract VestingToken {
+
+    using SafeERC20 for IERC20;
 
     address internal _vestingToken;
 
@@ -16,10 +19,11 @@ contract VestingToken {
      */
     function __transfer(address receiver, uint256 amount) internal {
         if (_vestingToken == address(0)){
-            payable(receiver).transfer(amount);
+            (bool success, ) = receiver.call{value: amount}("");
+            require(success, "Transfer failed");
         } else {
             IERC20 _token = IERC20(_vestingToken);
-            _token.transfer(receiver, amount);
+            _token.safeTransfer(receiver, amount);
         }
     }
 
@@ -31,7 +35,7 @@ contract VestingToken {
             require(msg.value >= (amount), "Insufficient funds provided (value)");
         } else {
             IERC20 _token = IERC20(_vestingToken);
-            _token.transferFrom(sender, receiver, amount);
+            _token.safeTransferFrom(sender, receiver, amount);
         }
     }
 
