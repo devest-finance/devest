@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.20;
 
 import "./src/DvOrderBook.sol";
 import "@openzeppelin/contracts/utils/Context.sol";

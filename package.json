@@ -1,6 +1,6 @@
 {
   "name": "@devest/contracts",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "",
   "main": "truffle-config.js",
   "directories": {
@@ -15,14 +15,14 @@
     "url": "git+https://github.com/devest-finance/devest.git"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.9.3",
+    "@openzeppelin/contracts": "^5.1.0",
     "@openzeppelin/test-helpers": "0.5.16",
     "web3": "4.0.3"
   },
   "devDependencies": {
-    "truffle-contract-size": "2.0.1",
-    "ganache": "7.9.0",
-    "@truffle/hdwallet-provider": "2.1.13"
+    "hardhat": "^2.22.15",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6"
   },
   "author": "",
   "license": "ISC",
